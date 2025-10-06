@@ -1,5 +1,5 @@
 name: Frontend CI
-on: [push, pull_request]
+on: [commit, push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
