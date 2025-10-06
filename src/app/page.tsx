@@ -1,4 +1,4 @@
-import SignUp from "./SignUp/page";
+import SignUp from "./SignIn/page";
 import Image from "next/image";
 
 export default function Home() {
