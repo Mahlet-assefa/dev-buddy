@@ -9,5 +9,5 @@ jobs:
         with:
           node-version: 18.18.2
       - run: npm install
-      - run: npm lint
-      - run: npm build
+      - run: npm run lint
+      - run: npm run build
