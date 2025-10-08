@@ -12,27 +12,48 @@ export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
+    {},
+  );
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setErrors({});
     const schema = z.object({
       email: z.string().email({ message: "Invalid email address" }),
-      password: z.string().min(8, { message: "Password must be at least 8 characters" }),
+      password: z
+        .string()
+        .min(8, { message: "Password must be at least 8 characters" }),
     });
     const result = schema.safeParse({ email, password });
     if (!result.success) {
       const fieldErrors: { email?: string; password?: string } = {};
-      result.error.issues.forEach(issue => {
+      result.error.issues.forEach((issue) => {
         if (issue.path[0] === "email") fieldErrors.email = issue.message;
         if (issue.path[0] === "password") fieldErrors.password = issue.message;
       });
       setErrors(fieldErrors);
       return;
     }
-    // Send data to backend (e.g., fetch('/api/login', ...))
-    // Handle success or error
+    try {
+      const response = await fetch('auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Login failed:', errorData.message);
+      } else {
+        const data = await response.json();
+        console.log('Login successful:', data);
+      }
+    }
+    catch (error) {
+      console.error('An unexpected error occurred:', error);
+    }
   };
 
   return (
@@ -43,7 +64,10 @@ export default function SignInPage() {
         transition={{ duration: 0.5 }}
         className="w-full max-w-md"
       >
-        <form className="bg-white rounded-2xl shadow-xl p-8 space-y-6" onSubmit={handleSubmit}>
+        <form
+          className="bg-white rounded-2xl shadow-xl p-8 space-y-6"
+          onSubmit={handleSubmit}
+        >
           <div className="text-center space y-2">
             <h1 className="text-3xl font-bold tracking-lighter">
               welcome back
@@ -95,7 +119,9 @@ export default function SignInPage() {
                   </a>
                 </p>
                 {errors.password && (
-                  <div className="text-red-500 text-xs mt-1">{errors.password}</div>
+                  <div className="text-red-500 text-xs mt-1">
+                    {errors.password}
+                  </div>
                 )}
               </div>
               <Button
@@ -134,7 +160,6 @@ export default function SignInPage() {
               </p>
             </div>
           </div>
-          
         </form>
       </motion.div>
     </div>
